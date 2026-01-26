@@ -394,12 +394,30 @@ netlify deploy
 
 ## 🔐 Security Considerations
 
-- ✅ PDAs ensure secure account ownership
-- ✅ Escrow system prevents payment fraud
-- ✅ On-chain authorization checks
-- ✅ Wallet signature verification
-- ⚠️ Always verify transaction details before signing
-- ⚠️ Use devnet for testing, mainnet for production
+### Smart Contract Security
+- ✅ **PDAs (Program-Derived Addresses)**: Ensure secure, predictable account ownership without private key management
+- ✅ **Escrow System**: Funds are cryptographically locked in the program until explicit conditions are met, preventing unauthorized transfers
+- ✅ **On-Chain Authorization Checks**: All transactions verify user permissions before execution
+- ✅ **Wallet Signature Verification**: Every action requires cryptographic proof of authorization from the wallet owner
+
+### Best Practices
+- ⚠️ **Always verify transaction details** before signing - review the amount, recipient, and operation type
+- ⚠️ **Never share your private key** or seed phrase with anyone, including support staff
+- ⚠️ **Use devnet for testing**: Test all workflows thoroughly on devnet before using mainnet with real funds
+- ⚠️ **Enable 2FA on wallet extensions**: Use additional security features provided by your wallet
+- ⚠️ **Verify program deployment**: Confirm the deployed program matches the expected program ID before transacting
+
+### Environment-Specific Recommendations
+| Environment | Recommendation | Use Case |
+|-----------|-----------------|----------|
+| **Devnet** | Use for testing and development | Free testing, no real value |
+| **Mainnet** | Use only with verified programs | Production with real SOL |
+| **Localnet** | Use for local development | Isolated testing environment |
+
+### Security Audit
+- This platform has not undergone a formal security audit. Use at your own risk
+- Review the smart contract code before deploying to mainnet
+- Test extensively on devnet with small amounts first
 
 ---
 
@@ -408,24 +426,86 @@ netlify deploy
 ### Common Issues
 
 **1. Wallet Connection Fails**
-- Ensure wallet extension is installed
-- Check network matches (devnet/mainnet)
-- Refresh page and try again
+- **Solution**: 
+  - Ensure your wallet extension is installed and enabled (Phantom, Solflare, etc.)
+  - Verify the network in your wallet matches the application network (devnet/mainnet)
+  - Try clearing browser cache: `Ctrl+Shift+Delete` and refresh the page
+  - Temporarily disable browser extensions that may interfere (ad blockers, privacy tools)
+  - Try a different browser to isolate the issue
 
-**2. Transaction Fails**
-- Verify sufficient SOL balance for gas fees
-- Check account exists (user must register first)
-- Ensure correct program deployment
+**2. Transaction Fails with "Insufficient Funds"**
+- **Cause**: Not enough SOL for transaction fees or the operation
+- **Solution**:
+  - Check your SOL balance in the wallet (aim for at least 0.1 SOL)
+  - Request an airdrop: `solana airdrop 2 --url devnet`
+  - Ensure you have funds in the correct network (devnet/mainnet)
+  - Note that escrow operations require additional SOL for account creation
 
-**3. Build Errors**
-- Run `npm install` or `yarn install`
-- Clear `.next` cache: `rm -rf .next`
-- Verify Node.js version
+**3. User Account Not Found**
+- **Cause**: User hasn't registered on-chain yet
+- **Solution**:
+  - Navigate to Dashboard and complete the registration process
+  - Wait for the registration transaction to confirm (usually 10-30 seconds)
+  - Refresh the page after successful registration
+  - Check the transaction hash on Solana Explorer for confirmation
 
-**4. Program Deployment Issues**
-- Ensure Solana CLI is properly configured
-- Check program size (may need to increase compute)
-- Verify wallet has sufficient SOL
+**4. Build Errors**
+- **Solutions**:
+  - Clear and reinstall dependencies: `rm -rf node_modules && npm install`
+  - Clear Next.js cache: `rm -rf .next && npm run dev`
+  - Verify Node.js version: `node --version` (v20+ required)
+  - Check for TypeScript errors: `npm run type-check`
+  - Try updating packages: `npm update`
+
+**5. Program Deployment Issues**
+- **Solutions**:
+  - Verify Solana CLI is installed: `solana --version`
+  - Check CLI configuration: `solana config get`
+  - Ensure wallet has sufficient SOL: `solana balance`
+  - Try increasing compute budget if program is too large
+  - For Anchor: verify `Anchor.toml` and `Cargo.toml` configurations
+  - Clear Anchor cache: `anchor clean` then `anchor build`
+
+**6. RPC Connection Errors**
+- **Cause**: Issues connecting to Solana network
+- **Solution**:
+  - Verify RPC endpoint is correct in environment variables
+  - Try alternative RPC endpoints if main one is down
+  - Check internet connection stability
+  - For devnet issues, try: `https://api.devnet.solana.com`
+  - Rate limiting: If making many requests, implement exponential backoff
+
+**7. Job Creation Transaction Timeout**
+- **Cause**: Network congestion or slow RPC node
+- **Solution**:
+  - Wait a moment and retry the transaction
+  - Check Solana network status: `solana validators --url devnet`
+  - Try during off-peak hours
+  - Verify escrow amount is reasonable (not exceptionally high)
+
+**8. Frontend Won't Load or Shows Blank Page**
+- **Solutions**:
+  - Check browser console for errors: `F12` → Console tab
+  - Verify environment variables in `.env.local` are set correctly
+  - Ensure the backend/program is deployed and accessible
+  - Clear browser cache and cookies
+  - Try incognito/private browsing mode
+  - Verify Next.js server is running: check terminal for `Ready in X.XXs`
+
+### Debug Mode
+
+To enable verbose logging:
+1. Set environment variable: `DEBUG=*`
+2. Check browser console (F12) for detailed error messages
+3. Monitor network requests in DevTools → Network tab
+4. Check terminal logs for server-side errors
+
+### Still Having Issues?
+
+- Check the [GitHub Issues](https://github.com/your-repo/issues) for similar problems
+- Review Solana Explorer for transaction details: `https://explorer.solana.com/?cluster=devnet`
+- Consult the [Anchor documentation](https://docs.rs/anchor-lang)
+- Contact the team via GitHub or LinkedIn (see Team section)
 
 ---
 
